@@ -78,10 +78,10 @@ class IRSTD1k_Data(Data.Dataset):
 class SirstDataset(Data.Dataset):
     def __init__(self, args):
         txtfile = 'test.txt'
-        self.list_dir = os.path.join('../data/NUAA-SIRST', txtfile)
+        self.list_dir = os.path.join('data/NUAA-SIRST/idx_427', txtfile)
 
         self.imgs_dir = args.output_path
-        self.label_dir = '../data/NUAA-SIRST/masks'
+        self.label_dir = 'data/NUAA-SIRST/masks'
 
         self.names = []
         self.names_mask = []
@@ -179,9 +179,9 @@ class Val:
         self.args = args
 
         # dataset
-        # self.val_set = SirstDataset(args)
+        self.val_set = SirstDataset(args)
         # self.val_set = IRSTD1k_Data(args)
-        self.val_set = NUDT_Data(args)
+        # self.val_set = NUDT_Data(args)
         self.val_data_loader = Data.DataLoader(self.val_set, batch_size=args.batch_size)
 
         self.iou_metric = IoUMetric()

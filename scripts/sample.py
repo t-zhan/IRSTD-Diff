@@ -21,7 +21,7 @@ def main():
     if args.data_name == 'IRSTD':
         dataset = IRSTD_Dataset(args, args.data_dir, mode='test')
         args.in_ch = 4
-    elif args.data_name == 'NUAA':
+    elif args.data_name == 'SIRST':
         dataset = SIRST_Dataset(args, args.data_dir, mode='test')
         args.in_ch = 4
     elif args.data_name == 'NUDT':
@@ -86,25 +86,27 @@ def main():
 
         end.record()
         th.cuda.synchronize()
-        print('time for 1 sample', start.elapsed_time(end))  # time measurement for the generation of 1 sample
+        print('time for 1 sample {:.2f}s'.format(start.elapsed_time(end) / 1000))  # time measurement for the generation of 1 sample
 
-        co = th.tensor(cal_out)
+        # co = th.tensor(cal_out)
+        co = cal_out.clone().detach()
 
-        vutils.save_image(co, fp=args.out_dir + str(slice_ID) + ".png", nrow=1, padding=10)
+        vutils.save_image(co, fp=args.out_dir + "/" + str(slice_ID) + ".png", nrow=1, padding=10)
 
 
 def create_argparser():
     defaults = dict(
-        data_name='IRSTD',
-        data_dir=r"../data/IRSTD-1k",
+        data_name='SIRST',
+        data_dir=r"./data/NUAA-SIRST",
         clip_denoised=True,
         num_samples=1,
         batch_size=1,
         use_ddim=False,
-        model_path=r"../results/results_NUDT/model000000.pt",
+        model_path=r"./results/results_NUDT/model000000.pt",
         gpu_dev="0",
         out_dir='../sample/NUDT_000000/',
-        multi_gpu=None,  # "0,1,2"
+        multi_gpu="0,1,2,3",  # None,
+        image_size=256
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()

@@ -2,6 +2,8 @@ import argparse
 import random
 import numpy as np
 import torch
+import os
+import time
 
 from guided_diffusion import dist_util
 from guided_diffusion import logger
@@ -19,7 +21,7 @@ from guided_diffusion.resample import create_named_schedule_sampler
 def main():
     args = create_argparser().parse_args()
 
-    # dist_util.setup_dist(args)
+    dist_util.setup_dist(args)
     logger.configure(dir=args.out_dir)
 
     logger.log("creating data loader...")
@@ -78,27 +80,35 @@ def main():
 
 def create_argparser():
     defaults = dict(
-        data_name='IRSTD',
-        data_dir="../data/NUDT-SIRST",
+        data_name='SIRST',
+        data_dir="./data/NUAA-SIRST",
         schedule_sampler="uniform",
         lr=1e-4,
         weight_decay=0.0,
         lr_anneal_steps=0,
-        batch_size=1,
+        batch_size=20,
         microbatch=-1,  # -1 disables microbatches
         ema_rate="0.9999",  # comma-separated list of EMA values
-        log_interval=200,
-        save_interval=10000,
+        log_interval=100,
+        save_interval=100,
         resume_checkpoint='',  # '"../results/pretrainedmodel.pt",
         use_fp16=False,
         fp16_scale_growth=1e-3,
         gpu_dev="0",
-        multi_gpu=None,  # "0,1,2"
-        out_dir=r'../results/results_NUDT'
+        multi_gpu="0,1,2,3",
+        out_dir=r'./runs',
+        image_size=256
     )
+
+    timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
+    defaults["out_dir"] = os.path.join(defaults["out_dir"], timestamp, "results")
+    if not os.path.exists(defaults["out_dir"]):
+        os.makedirs(defaults["out_dir"])
+    
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()
     add_dict_to_argparser(parser, defaults)
+
     return parser
 
 
